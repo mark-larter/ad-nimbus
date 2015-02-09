@@ -1,0 +1,12 @@
+{
+    "name": "docker-centos-node-netLocation",
+    "private": true,
+    "version": "0.0.1",
+    "description": "Node.js netLocation service on CentOS using docker",
+    "author": "Mark Larter <mark@freeheelgroup.com>",
+    "license": "MIT",
+    "dependencies": {
+        "express": "3.2.4",
+        "maxmind-db-reader": "0.2.0"
+    }
+}
