@@ -10,11 +10,11 @@ RUN curl -sL https://rpm.nodesource.com/setup | bash -
 # Install nodejs and npm.
 RUN yum install -y nodejs
 
-# Bundle source.
-COPY . /src
-
-# Install dependencies.
+# Install app dependencies.
 RUN npm i maxmind-db-reader
+
+# Copy app source to VM.
+COPY ./src /src
 
 # Install app.
 RUN cd /src; npm i
