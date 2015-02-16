@@ -111,7 +111,7 @@ Vagrant.configure("2") do |config|
         vb.cpus = vm_cpus
       end
 
-      ip = "172.17.8.#{i+100}"
+      ip = "172.17.8.#{i+99}"
       config.vm.network :private_network, ip: ip
 
       # Enable NFS for sharing the host machine into the VM.
