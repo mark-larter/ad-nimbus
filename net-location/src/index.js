@@ -23,17 +23,97 @@ app.get('/', function(request, response) {
     console.log('ipAddress: ' + ipAddress);
         
     // Lookup geo-location for specified IP.
-    countryDb.getGeoData(ipAddress, function(err, geoData) {
+    var geoData = { "ipAddress" : ipAddress };
+    var countryData = null;
+    var ispData = null;
+    countryDb.getGeoData(ipAddress, function(err, countryData) {
         // Do something about err.
         if (err) {
+            console.log('err: ' + err);
+            geoData.errorCountry = err;
         }
-        
-        // Respond with data.
-        response.send(geoData);
-        console.log(geoData);
+        else {
+            // Append country data.
+            appendCountry(geoData, countryData);
+        }
+                         
+        // Lookup ISP for specified IP.
+        ispDb.getGeoData(ipAddress, function(err, ispData) {
+            // Do something about err.
+            if (err) {
+                console.log('err: ' + err);
+                geoData.errorIsp = err;
+            }
+            else {
+                // Append ISP data.
+                appendIsp(geoData, ispData);
+            }
+                         
+            response.send(geoData);
+        });
     });
 });
 
 // Listen.
 app.listen(PORT);
 console.log(SERVICE + ' running on port ' + PORT);
+
+// Function to append country data to response payload.
+function appendCountry(geoData, countryData) {
+    if (countryData) {
+        // Country.
+        var country = countryData.country;
+        if (country) {
+            geoData.countryCode = country.iso_code;
+            var names = country.names;
+            if (names) {
+                geoData.country = names["en"];
+            }
+        }
+        
+        // State.
+        var subdivisions = countryData.subdivisions;
+        if (subdivisions) {
+            var subdivision = subdivisions[0];
+            if (subdivision) {
+                geoData.regionCode = subdivision.iso_code;
+                names = subdivision.names;
+                if (names) {
+                    geoData.region = names["en"];
+                }
+            }
+        }
+        
+        // City.
+        var city = countryData.city;
+        if (city) {
+            names = city.names;
+            if (names) {
+                geoData.city = names["en"];
+            }
+        }
+        
+        // Postal.
+        var postal = countryData.postal;
+        if (postal) {
+            geoData.postal = postal.code;
+        }
+        
+        // Location.
+        var location = countryData.location;
+        if (location) {
+            geoData.lat = location.latitude;
+            geoData.lon = location.longitude;
+            geoData.timezone = location.time_zone;
+        }
+    }
+}
+
+// Function to append ISP data to response payload.
+function appendIsp(geoData, ispData) {
+    if (ispData) {
+        if (ispData.isp) {
+            geoData.isp = ispData.isp;
+        }
+    }
+}
