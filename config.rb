@@ -25,7 +25,7 @@ $new_discovery_url='https://discovery.etcd.io/new'
 # after the equals sign..
 
 # Size of the CoreOS cluster created by Vagrant
-$num_instances=3
+$num_instances=4
 
 # Change basename of the VM
 # The default value is "core", which results in VMs named starting with

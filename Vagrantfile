@@ -5,6 +5,7 @@ require 'fileutils'
 
 Vagrant.require_version ">= 1.6.0"
 
+NGINX_CONFIG_PATH = File.join(File.dirname(__FILE__), "nginx")
 CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 
@@ -13,7 +14,7 @@ $num_instances = 1
 $instance_name_prefix = "core"
 $update_channel = "alpha"
 $enable_serial_logging = false
-$share_home = false
+$share_home = true
 $vm_gui = false
 $vm_memory = 1024
 $vm_cpus = 1
@@ -121,11 +122,27 @@ Vagrant.configure("2") do |config|
         config.vm.synced_folder ENV['HOME'], ENV['HOME'], id: "home", :nfs => true, :mount_options => ['nolock,vers=3,udp']
       end
 
-      if File.exist?(CLOUD_CONFIG_PATH)
-        config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-        config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+      case i
+      when 0 .. 3
+          if File.exist?(CLOUD_CONFIG_PATH)
+            config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+            config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+          end
+      when 4
+          if File.exist?(NGINX_CONFIG_PATH)
+            config.vm.provision :file, :source => "#{NGINX_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+            config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+            # TODO: Once I figure out how to build docker image by hand, get Vagrant to do this
+            imageName = "nginx/kestrel"
+            config.vm.provision "docker" do |d|
+                d.build_image "/share/nginx/", args: "-t nginx/kestrel"
+                d.run "nginx/kestrel"
+            end
+          end
+      else
+          print "Error: TODO: Need instructionsn on how to build instance", i
       end
-
     end
   end
 end
+
