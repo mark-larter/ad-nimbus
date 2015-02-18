@@ -14,7 +14,6 @@ $num_instances = 1
 $instance_name_prefix = "core"
 $update_channel = "alpha"
 $enable_serial_logging = false
-$share_home = true
 $vm_gui = false
 $vm_memory = 1024
 $vm_cpus = 1
@@ -56,12 +55,6 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.provider :virtualbox do |v|
-    # On VirtualBox, we don't have guest additions or a functional vboxsf
-    # in CoreOS, so tell Vagrant that so it can be smarter.
-    v.check_guest_additions = false
-    v.functional_vboxsf     = false
-  end
 
   # plugin conflict
   if Vagrant.has_plugin?("vagrant-vbguest") then
@@ -69,7 +62,17 @@ Vagrant.configure("2") do |config|
   end
 
   (1..$num_instances).each do |i|
-    config.vm.define vm_name = "%s-%02d" % [$instance_name_prefix, i] do |config|
+    $vmName = "%s-%02d" % [$instance_name_prefix, i] 
+
+    config.vm.provider :virtualbox do |v|
+      # On VirtualBox, we don't have guest additions or a functional vboxsf
+      # in CoreOS, so tell Vagrant that so it can be smarter.
+      v.check_guest_additions = false
+      v.functional_vboxsf     = false
+      #v.name                  = $vmName
+    end
+
+    config.vm.define vm_name = $vmName do |config|
       config.vm.hostname = vm_name
 
       if $enable_serial_logging
@@ -132,11 +135,13 @@ Vagrant.configure("2") do |config|
           if File.exist?(NGINX_CONFIG_PATH)
             config.vm.provision :file, :source => "#{NGINX_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
             config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-            # TODO: Once I figure out how to build docker image by hand, get Vagrant to do this
+
+            # From: http://stackoverflow.com/questions/21167531/how-do-i-provision-a-dockerfile-from-vagrant
             imageName = "nginx/kestrel"
             config.vm.provision "docker" do |d|
-                d.build_image "/share/nginx/", args: "-t nginx/kestrel"
-                d.run "nginx/kestrel"
+                d.build_image "share/nginx/", args: "-t nginx/kestrel"
+                d.run "nginx/kestrel", 
+                    args: "-P -d -name 'nginxDockerImage'"
             end
           end
       else

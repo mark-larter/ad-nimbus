@@ -19,5 +19,5 @@ VOLUME /etc/nginx
 EXPOSE 80
 EXPOSE 443
 
-CMD service nginx -c /etc/nginx/nginx.conf
+CMD ["nginx"]
 
