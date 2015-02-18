@@ -130,6 +130,11 @@ Vagrant.configure("2") do |config|
           if File.exist?(CLOUD_CONFIG_PATH)
             config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
             config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+            config.vm.provision "docker" do |d|
+                d.build_image "share/net-location/", args: "-t net-location/kestrel"
+                d.run "net-location/kestrel", 
+                    args: "-P node '/share/net-location/src/index.js'"
+            end
           end
       when 4
           if File.exist?(NGINX_CONFIG_PATH)
@@ -141,7 +146,7 @@ Vagrant.configure("2") do |config|
             config.vm.provision "docker" do |d|
                 d.build_image "share/nginx/", args: "-t nginx/kestrel"
                 d.run "nginx/kestrel", 
-                    args: "-P -d -name 'nginxDockerImage'"
+                    args: "-P nginx"
             end
           end
       else
