@@ -3,17 +3,21 @@
 
 require 'fileutils'
 
-Vagrant.require_version ">= 1.6.0"
+Vagrant.require_version ">= 1.6.5"
 
+unless Vagrant.has_plugin?("vagrant-triggers")
+raise Vagrant::Errors::VagrantError.new, "Please install the vagrant-triggers plugin running 'vagrant plugin install vagrant-triggers'"
+end
+
+NGINX_CONFIG_PATH = File.join(File.dirname(__FILE__), "nginx")
 CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 
 # Defaults for config options defined in CONFIG
 $num_instances = 1
 $instance_name_prefix = "core"
-$update_channel = "alpha"
+$update_channel = "stable"
 $enable_serial_logging = false
-$share_home = false
 $vm_gui = false
 $vm_memory = 1024
 $vm_cpus = 1
@@ -46,7 +50,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   config.vm.box = "coreos-%s" % $update_channel
-  config.vm.box_version = ">= 308.0.1"
+  config.vm.box_version = ">= 522.6.0"
   config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json" % $update_channel
 
   ["vmware_fusion", "vmware_workstation"].each do |vmware|
@@ -55,12 +59,6 @@ Vagrant.configure("2") do |config|
     end
   end
 
-  config.vm.provider :virtualbox do |v|
-    # On VirtualBox, we don't have guest additions or a functional vboxsf
-    # in CoreOS, so tell Vagrant that so it can be smarter.
-    v.check_guest_additions = false
-    v.functional_vboxsf     = false
-  end
 
   # plugin conflict
   if Vagrant.has_plugin?("vagrant-vbguest") then
@@ -68,7 +66,17 @@ Vagrant.configure("2") do |config|
   end
 
   (1..$num_instances).each do |i|
-    config.vm.define vm_name = "%s-%02d" % [$instance_name_prefix, i] do |config|
+    $vmName = "%s-%02d" % [$instance_name_prefix, i] 
+
+    config.vm.provider :virtualbox do |v|
+      # On VirtualBox, we don't have guest additions or a functional vboxsf
+      # in CoreOS, so tell Vagrant that so it can be smarter.
+      v.check_guest_additions = false
+      v.functional_vboxsf     = false
+      #v.name                  = $vmName
+    end
+
+    config.vm.define vm_name = $vmName do |config|
       config.vm.hostname = vm_name
 
       if $enable_serial_logging
@@ -121,11 +129,34 @@ Vagrant.configure("2") do |config|
         config.vm.synced_folder ENV['HOME'], ENV['HOME'], id: "home", :nfs => true, :mount_options => ['nolock,vers=3,udp']
       end
 
-      if File.exist?(CLOUD_CONFIG_PATH)
-        config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-        config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-      end
+      case i
+      when 0 .. 3
+          if File.exist?(CLOUD_CONFIG_PATH)
+            config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+            config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+            config.vm.provision "docker" do |d|
+                d.build_image "share/net-location/", args: "-t net-location/kestrel"
+                d.run "net-location/kestrel", 
+                    args: "-P node '/share/net-location/src/index.js'"
+            end
+          end
+      when 4
+          if File.exist?(NGINX_CONFIG_PATH)
+            config.vm.provision :file, :source => "#{NGINX_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+            config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
 
+            # From: http://stackoverflow.com/questions/21167531/how-do-i-provision-a-dockerfile-from-vagrant
+            imageName = "nginx/kestrel"
+            config.vm.provision "docker" do |d|
+                d.build_image "share/nginx/", args: "-t nginx/kestrel"
+                d.run "nginx/kestrel", 
+                    args: "-P nginx"
+            end
+          end
+      else
+          print "Error: TODO: Need instructionsn on how to build instance", i
+      end
     end
   end
 end
+

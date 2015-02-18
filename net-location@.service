@@ -1,0 +1,13 @@
+[Unit]
+Description=Network geo-location service
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker pull marklarter/centos-node-netlocation
+ExecStart=/usr/bin/docker run --name net-location -p 49160:8080 -t marklarter/centos-node-netlocation
+ExecStop=/usr/bin/docker stop net-location
+
+[X-Fleet]
+Conflicts=net-location@*.service
