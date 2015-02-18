@@ -3,7 +3,11 @@
 
 require 'fileutils'
 
-Vagrant.require_version ">= 1.6.0"
+Vagrant.require_version ">= 1.6.5"
+
+unless Vagrant.has_plugin?("vagrant-triggers")
+raise Vagrant::Errors::VagrantError.new, "Please install the vagrant-triggers plugin running 'vagrant plugin install vagrant-triggers'"
+end
 
 CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
@@ -11,7 +15,7 @@ CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 # Defaults for config options defined in CONFIG
 $num_instances = 1
 $instance_name_prefix = "core"
-$update_channel = "alpha"
+$update_channel = "stable"
 $enable_serial_logging = false
 $share_home = false
 $vm_gui = false
@@ -46,7 +50,7 @@ Vagrant.configure("2") do |config|
   config.ssh.insert_key = false
 
   config.vm.box = "coreos-%s" % $update_channel
-  config.vm.box_version = ">= 308.0.1"
+  config.vm.box_version = ">= 522.6.0"
   config.vm.box_url = "http://%s.release.core-os.net/amd64-usr/current/coreos_production_vagrant.json" % $update_channel
 
   ["vmware_fusion", "vmware_workstation"].each do |vmware|
