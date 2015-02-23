@@ -136,8 +136,8 @@ Vagrant.configure("2") do |config|
             config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
             config.vm.provision "docker" do |d|
                 d.build_image "share/net-location/", 
-                    args: "-t netlocation/kestrel"
-                d.run "netlocation/kestrel",
+                    args: "-t netlocation/raptor"
+                d.run "netlocation/raptor",
                     cmd: "node /src/index.js",
                     args: "-P -d"
             end
@@ -148,12 +148,11 @@ Vagrant.configure("2") do |config|
             #config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
 
             # From: http://stackoverflow.com/questions/21167531/how-do-i-provision-a-dockerfile-from-vagrant
-            imageName = "nginx/kestrel"
             config.vm.provision "docker" do |d|
-                d.build_image "share/nginx/", args: "-t nginx/kestrel"
+                d.build_image "share/nginx/", args: "-t nginx/raptor"
                 # Dockerfile has a CMD to start nginx
                 d.run "nginx", 
-                    image: "nginx/kestrel",
+                    image: "nginx/raptor",
                     args: "-P -d"
             end
           end
