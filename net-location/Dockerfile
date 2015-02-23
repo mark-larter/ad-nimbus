@@ -23,5 +23,5 @@ RUN cd /src; npm i
 EXPOSE 8080
 
 # Define runtime.
-CMD ["node", "/src/index.js"]
+#CMD ["node", "/src/index.js"]
 

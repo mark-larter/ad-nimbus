@@ -135,22 +135,26 @@ Vagrant.configure("2") do |config|
             config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
             config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
             config.vm.provision "docker" do |d|
-                d.build_image "share/net-location/", args: "-t net-location/kestrel"
-                d.run "net-location/kestrel", 
-                    args: "-P node '/share/net-location/src/index.js'"
+                d.build_image "share/net-location/", 
+                    args: "-t netlocation/kestrel"
+                d.run "netlocation/kestrel",
+                    cmd: "node /src/index.js",
+                    args: "-P -d"
             end
           end
       when 4
           if File.exist?(NGINX_CONFIG_PATH)
             config.vm.provision :file, :source => "#{NGINX_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-            config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
+            #config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
 
             # From: http://stackoverflow.com/questions/21167531/how-do-i-provision-a-dockerfile-from-vagrant
             imageName = "nginx/kestrel"
             config.vm.provision "docker" do |d|
                 d.build_image "share/nginx/", args: "-t nginx/kestrel"
-                d.run "nginx/kestrel", 
-                    args: "-P nginx"
+                # Dockerfile has a CMD to start nginx
+                d.run "nginx", 
+                    image: "nginx/kestrel",
+                    args: "-P -d"
             end
           end
       else
