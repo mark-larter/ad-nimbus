@@ -151,8 +151,8 @@ Vagrant.configure("2") do |config|
             config.vm.provision "docker" do |d|
                 d.build_image "share/nginx/", args: "-t nginx/raptor"
                 # Dockerfile has a CMD to start nginx
-                d.run "nginx",
-                    image: "nginx/raptor",
+                d.run "nginx/raptor",
+                    cmd: "nginx",
                     args: "-P -d"
             end
           end
