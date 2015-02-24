@@ -2,7 +2,7 @@
 var app = express();
 
 app.route('*').all(function(req, res) {
-  res.send('Hello World!');
+  res.send('NGINX: Hello World!');
 });
 
 app.listen(2000)

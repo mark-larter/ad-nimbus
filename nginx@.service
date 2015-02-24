@@ -1,0 +1,13 @@
+[Unit]
+Description=nginx load balancer aka reverse proxy
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=/usr/bin/docker pull marklarter/centos-node-netlocation
+ExecStart=/usr/bin/docker run --name nginx -location -P -t marklarter/nginx
+ExecStop=/usr/bin/docker stop nginx
+
+[X-Fleet]
+Conflicts=net-location@*.service
