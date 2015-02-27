@@ -1,8 +1,9 @@
 #cloud-config
 
+---
 coreos:
   etcd:
-    discovery: https://discovery.etcd.io/2f9931eeb499630452b7ce049a120020
+    discovery: https://discovery.etcd.io/2964c3621d50e6229c86b3200d98b8de
     addr: $private_ipv4:4001
     peer-addr: $private_ipv4:7001
     peer-election-timeout: 2000
@@ -11,21 +12,21 @@ coreos:
     public-ip: $private_ipv4
     etcd_request_timeout: 3.0
   units:
-    - name: etcd.service
-      command: start
-    - name: fleet.service
-      command: start
-    - name: docker-tcp.socket
-      command: start
-      enable: true
-      content: |
-        [Unit]
-        Description=Docker Socket for the API
+  - name: etcd.service
+    command: start
+  - name: fleet.service
+    command: start
+  - name: docker-tcp.socket
+    command: start
+    enable: true
+    content: |
+      [Unit]
+      Description=Docker Socket for the API
 
-        [Socket]
-        ListenStream=2375
-        Service=docker.service
-        BindIPv6Only=both
+      [Socket]
+      ListenStream=2375
+      Service=docker.service
+      BindIPv6Only=both
 
-        [Install]
-        WantedBy=sockets.target
+      [Install]
+      WantedBy=sockets.target

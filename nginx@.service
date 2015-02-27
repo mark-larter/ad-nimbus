@@ -5,8 +5,8 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStartPre=/usr/bin/docker pull marklarter/centos-node-netlocation
-ExecStart=/usr/bin/docker run --name nginx -location -P -t marklarter/nginx
+ExecStartPre=/usr/bin/docker pull asteere/nginx
+ExecStart=/usr/bin/docker run --name nginx -location -P -d -t asteere/nginx
 ExecStop=/usr/bin/docker stop nginx
 
 [X-Fleet]

@@ -3,19 +3,19 @@ $new_discovery_url='https://discovery.etcd.io/new'
 # To automatically replace the discovery token on 'vagrant up', uncomment
 # the lines below:
 #
-#if File.exists?('user-data') && ARGV[0].eql?('up')
-#  require 'open-uri'
-#  require 'yaml'
-# 
-#  token = open($new_discovery_url).read
-# 
-#  data = YAML.load(IO.readlines('user-data')[1..-1].join)
-#  data['coreos']['etcd']['discovery'] = token
-# 
-#  yaml = YAML.dump(data)
-#  File.open('user-data', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
-#end
-#
+if File.exists?('user-data') && ARGV[0].eql?('up')
+  require 'open-uri'
+  require 'yaml'
+ 
+  token = open($new_discovery_url).read
+ 
+  data = YAML.load(IO.readlines('user-data')[1..-1].join)
+  data['coreos']['etcd']['discovery'] = token
+ 
+  yaml = YAML.dump(data)
+  File.open('user-data', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
+end
+
 
 #
 # coreos-vagrant is configured through a series of configuration
@@ -25,15 +25,16 @@ $new_discovery_url='https://discovery.etcd.io/new'
 # after the equals sign..
 
 # Size of the CoreOS cluster created by Vagrant
-$num_instances=4
+$num_instances=2
 
 # Change basename of the VM
 # The default value is "core", which results in VMs named starting with
 # "core-01" through to "core-${num_instances}".
-#$instance_name_prefix="core"
+$instance_name_prefix="core"
 
 # Official CoreOS channel from which updates should be downloaded
 #$update_channel='alpha'
+$update_channel='stable'
 
 # Log the serial consoles of CoreOS VMs to log/
 # Enable by setting value to true, disable with false
@@ -51,9 +52,9 @@ $expose_docker_tcp=2375
 # Enable NFS sharing of your home directory ($HOME) to CoreOS
 # It will be mounted at the same path in the VM as on the host.
 # Example: /Users/foobar -> /Users/foobar
-$share_home=false
+$share_home=true
 
 # Customize VMs
-#$vm_gui = false
-#$vm_memory = 1024
-#$vm_cpus = 1
+$vm_gui = false
+$vm_memory = 1024
+$vm_cpus = 1

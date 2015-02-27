@@ -5,8 +5,10 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
-ExecStartPre=/usr/bin/docker pull marklarter/centos-node-netlocation
-ExecStart=/usr/bin/docker run --name net-location -p 49160:8080 -t marklarter/centos-node-netlocation
+ExecStartPre=/usr/bin/docker kill net-location
+ExecStartPre=/usr/bin/docker rm net-location
+ExecStartPre=/usr/bin/docker pull asteere/netlocation
+ExecStart=/usr/bin/docker run --name net-location -P -d -t asteere/netlocation
 ExecStop=/usr/bin/docker stop net-location
 
 [X-Fleet]
