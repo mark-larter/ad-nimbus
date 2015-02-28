@@ -1,3 +1,6 @@
 *.mmdb
 .vagrant/
 .*.swp
+
+# Andy's shell customizations
+.andy/
