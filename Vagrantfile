@@ -14,13 +14,13 @@ CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 
 # Defaults for config options defined in CONFIG
-$num_instances = 1
-$instance_name_prefix = "core"
-$update_channel = "stable"
-$enable_serial_logging = false
-$vm_gui = false
-$vm_memory = 1024
-$vm_cpus = 1
+#$num_instances = 1
+#$instance_name_prefix = "core"
+#$update_channel = "stable"
+#$enable_serial_logging = false
+#$vm_gui = false
+#$vm_memory = 1024
+#$vm_cpus = 1
 
 # Attempt to apply the deprecated environment variable NUM_INSTANCES to
 # $num_instances while allowing config.rb to override it
@@ -136,27 +136,32 @@ Vagrant.configure("2") do |config|
           if File.exist?(CLOUD_CONFIG_PATH)
             config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
             config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-            config.vm.provision "docker" do |d|
-                d.build_image "share/net-location/", 
-                    args: "-t netlocation/raptor"
-                d.run "netlocation/raptor",
-                    cmd: "node /src/index.js",
-                    args: "-P -d"
-            end
+
+            # Build dockerfile during creation of coreos instance
+            #config.vm.provision "docker" do |d|
+            #    d.build_image "share/net-location/", 
+            #        args: "-t netlocation/raptor"
+            #    d.run "netlocation/raptor",
+            #        cmd: "node /src/index.js",
+            #        args: "-P -d"
+            #end
           end
       when 4
           if File.exist?(NGINX_CONFIG_PATH)
             config.vm.provision :file, :source => "#{NGINX_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+
+            # TODO: Why did Andy(I) comment this out?
             #config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
 
+            # Build dockerfile during creation of coreos instance
             # From: http://stackoverflow.com/questions/21167531/how-do-i-provision-a-dockerfile-from-vagrant
-            config.vm.provision "docker" do |d|
-                d.build_image "share/nginx/", args: "-t nginx/raptor"
-                # Dockerfile has a CMD to start nginx
-                d.run "nginx/raptor",
-                    cmd: "nginx",
-                    args: "-P -d"
-            end
+            #config.vm.provision "docker" do |d|
+            #    d.build_image "share/nginx/", args: "-t nginx/raptor"
+            #    # Dockerfile has a CMD to start nginx
+            #    d.run "nginx/raptor",
+            #        cmd: "nginx",
+            #        args: "-P -d"
+            #end
           end
       else
           print "Error: TODO: Need instructionsn on how to build instance", i
