@@ -20,5 +20,6 @@ VOLUME /etc/nginx
 EXPOSE 80
 EXPOSE 443
 
+# Don't start nginx, let fleetctl do it on coreos startup
 #CMD ["nginx", "-g", "daemon off;"]
 

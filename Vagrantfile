@@ -131,6 +131,10 @@ Vagrant.configure("2") do |config|
         config.vm.synced_folder ENV['HOME'], ENV['HOME'], id: "home", :nfs => true, :mount_options => ['nolock,vers=3,udp']
       end
 
+      # Customize the environment.
+      # TODO: ~ is a read-only file system. Figure out how to customize
+      config.vm.provision :shell, :inline => "echo . share/.andy/.profile >> ~/.bashrc", :privileged => true
+
       case i
       when 0 .. 3
           if File.exist?(CLOUD_CONFIG_PATH)
