@@ -13,3 +13,4 @@ ExecStop=/usr/bin/docker stop %p
 
 [X-Fleet]
 Conflicts=nginx@*.service
+Conflicts=net-location@*.service
