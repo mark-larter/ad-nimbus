@@ -25,7 +25,7 @@ $new_discovery_url='https://discovery.etcd.io/new'
 # after the equals sign..
 
 # Size of the CoreOS cluster created by Vagrant
-$num_instances=3
+$num_instances=5
 
 # Change basename of the VM
 # The default value is "core", which results in VMs named starting with
@@ -46,12 +46,12 @@ $num_instances=3
 # If 2375 is used, Vagrant will auto-increment (e.g. in the case of $num_instances > 1)
 # You can then use the docker tool locally by setting the following env var:
 #   export DOCKER_HOST='tcp://127.0.0.1:2375'
-#$expose_docker_tcp=2375
+$expose_docker_tcp=2375
 
 # Enable NFS sharing of your home directory ($HOME) to CoreOS
 # It will be mounted at the same path in the VM as on the host.
 # Example: /Users/foobar -> /Users/foobar
-#$share_home=false
+$share_home=false
 
 # Customize VMs
 #$vm_gui = false

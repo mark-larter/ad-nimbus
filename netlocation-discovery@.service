@@ -1,0 +1,22 @@
+[Unit]
+Description=Discovery sidekick for netLocation
+BindsTo=netlocation@%i.service
+After=netlocation@%i.service
+
+[Service]
+EnvironmentFile=/etc/environment
+ExecStart=/bin/bash -c '\
+  while true; do \
+    curl -f ${COREOS_PUBLIC_IPV4}:49160; \
+    if [ $? -eq 0 ]; then \
+      etcdctl set /services/netlocation@%i \'{"host": "%H", "ipv4_addr": ${COREOS_PUBLIC_IPV4}, "port": 49160, \"version\": \"1\" }\' --ttl 60; \
+    else \
+      etcdctl rm /services/netlocation@%i; \
+    fi; \
+  sleep 20; \
+  done'
+
+ExecStop=/usr/bin/etcdctl rm /services/netlocation@%i
+
+[X-Fleet]
+MachineOf=netlocation@%i.service
