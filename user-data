@@ -2,7 +2,7 @@
 
 coreos:
   etcd:
-    discovery: https://discovery.etcd.io/ea7a2f5343ca77f57b9554fdefb1c658
+    discovery: https://discovery.etcd.io/de432979da15e26c4879a3dfa81f855b
     addr: $private_ipv4:4001
     peer-addr: $private_ipv4:7001
     peer-election-timeout: 2000
