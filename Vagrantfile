@@ -135,40 +135,9 @@ Vagrant.configure("2") do |config|
       # TODO: ~ is a read-only file system. Figure out how to customize
       config.vm.provision :shell, :inline => "echo . share/.andy/.profile >> ~/.bashrc", :privileged => true
 
-      case i
-      when 0 .. 3
-          if File.exist?(CLOUD_CONFIG_PATH)
-            config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-            config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-
-            # Build dockerfile during creation of coreos instance
-            #config.vm.provision "docker" do |d|
-            #    d.build_image "share/net-location/", 
-            #        args: "-t netlocation/raptor"
-            #    d.run "netlocation/raptor",
-            #        cmd: "node /src/index.js",
-            #        args: "-P -d"
-            #end
-          end
-      when 4
-          if File.exist?(NGINX_CONFIG_PATH)
-            config.vm.provision :file, :source => "#{NGINX_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
-
-            # TODO: Why did Andy(I) comment this out?
-            #config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
-
-            # Build dockerfile during creation of coreos instance
-            # From: http://stackoverflow.com/questions/21167531/how-do-i-provision-a-dockerfile-from-vagrant
-            #config.vm.provision "docker" do |d|
-            #    d.build_image "share/nginx/", args: "-t nginx/raptor"
-            #    # Dockerfile has a CMD to start nginx
-            #    d.run "nginx/raptor",
-            #        cmd: "nginx",
-            #        args: "-P -d"
-            #end
-          end
-      else
-          print "Error: TODO: Need instructionsn on how to build instance", i
+      if File.exist?(CLOUD_CONFIG_PATH)
+        config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
+        config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
       end
     end
   end

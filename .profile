@@ -16,6 +16,7 @@ alias vsh1='vagrant ssh core-01'
 alias vsh2='vagrant ssh core-02'
 alias vsh3='vagrant ssh core-03'
 alias vsh4='vagrant ssh core-04'
+alias vsh5='vagrant ssh core-05'
 
 alias b2d=boot2docker
 
@@ -120,7 +121,10 @@ if test "$?" == 0
 then
     if test ! `boot2docker status` == "running"
     then
-	boot2docker up
+        boot2docker up
+    else
+        boot2docker init
+        boot2docker up
     fi
     $(boot2docker shellinit)
 fi
