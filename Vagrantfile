@@ -9,18 +9,18 @@ unless Vagrant.has_plugin?("vagrant-triggers")
 raise Vagrant::Errors::VagrantError.new, "Please install the vagrant-triggers plugin running 'vagrant plugin install vagrant-triggers'"
 end
 
-NGINX_CONFIG_PATH = File.join(File.dirname(__FILE__), "nginx")
 CLOUD_CONFIG_PATH = File.join(File.dirname(__FILE__), "user-data")
 CONFIG = File.join(File.dirname(__FILE__), "config.rb")
 
 # Defaults for config options defined in CONFIG
-#$num_instances = 1
-#$instance_name_prefix = "core"
-#$update_channel = "stable"
-#$enable_serial_logging = false
-#$vm_gui = false
-#$vm_memory = 1024
-#$vm_cpus = 1
+$num_instances = 1
+$instance_name_prefix = "core"
+$update_channel = "stable"
+$enable_serial_logging = false
+$share_home = false
+$vm_gui = false
+$vm_memory = 1024
+$vm_cpus = 1
 
 # Attempt to apply the deprecated environment variable NUM_INSTANCES to
 # $num_instances while allowing config.rb to override it
@@ -59,6 +59,12 @@ Vagrant.configure("2") do |config|
     end
   end
 
+  config.vm.provider :virtualbox do |v|
+    # On VirtualBox, we don't have guest additions or a functional vboxsf
+    # in CoreOS, so tell Vagrant that so it can be smarter.
+    v.check_guest_additions = false
+    v.functional_vboxsf     = false
+  end
 
   # plugin conflict
   if Vagrant.has_plugin?("vagrant-vbguest") then
@@ -66,17 +72,7 @@ Vagrant.configure("2") do |config|
   end
 
   (1..$num_instances).each do |i|
-    $vmName = "%s-%02d" % [$instance_name_prefix, i] 
-
-    config.vm.provider :virtualbox do |v|
-      # On VirtualBox, we don't have guest additions or a functional vboxsf
-      # in CoreOS, so tell Vagrant that so it can be smarter.
-      v.check_guest_additions = false
-      v.functional_vboxsf     = false
-      #v.name                  = $vmName
-    end
-
-    config.vm.define vm_name = $vmName do |config|
+    config.vm.define vm_name = "%s-%02d" % [$instance_name_prefix, i] do |config|
       config.vm.hostname = vm_name
 
       if $enable_serial_logging
@@ -102,9 +98,7 @@ Vagrant.configure("2") do |config|
       end
 
       if $expose_docker_tcp
-        $guest_port = "2%s75" % $i;
-        $host_port = $expose_docker_tcp + ($i.to_i * 100);
-        config.vm.network "forwarded_port", guest: $guest_port, host: $host_port, auto_correct: true
+        config.vm.network "forwarded_port", guest: 2375, host: ($expose_docker_tcp + i - 1), auto_correct: true
       end
 
       ["vmware_fusion", "vmware_workstation"].each do |vmware|
@@ -131,15 +125,11 @@ Vagrant.configure("2") do |config|
         config.vm.synced_folder ENV['HOME'], ENV['HOME'], id: "home", :nfs => true, :mount_options => ['nolock,vers=3,udp']
       end
 
-      # Customize the environment.
-      # TODO: ~ is a read-only file system. Figure out how to customize
-      config.vm.provision :shell, :inline => "echo . share/.andy/.profile >> ~/.bashrc", :privileged => true
-
       if File.exist?(CLOUD_CONFIG_PATH)
         config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"
         config.vm.provision :shell, :inline => "mv /tmp/vagrantfile-user-data /var/lib/coreos-vagrant/", :privileged => true
       end
+
     end
   end
 end
-
