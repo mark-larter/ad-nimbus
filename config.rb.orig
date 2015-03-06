@@ -52,7 +52,11 @@ $expose_docker_tcp=2375
 # Enable NFS sharing of your home directory ($HOME) to CoreOS
 # It will be mounted at the same path in the VM as on the host.
 # Example: /Users/foobar -> /Users/foobar
+<<<<<<< HEAD
+$share_home=false
+=======
 $share_home=true
+>>>>>>> master
 
 # Customize VMs
 $vm_gui = false
