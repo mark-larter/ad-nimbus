@@ -1,5 +1,5 @@
 [Unit]
-Description=Network geo-location service
+Description=Network geo-location service %m %H:%i
 After=docker.service
 Requires=docker.service
 
