@@ -27,6 +27,5 @@ RUN yum install -y nginx
 EXPOSE 80
 EXPOSE 443
 
-# Run app.
-CMD ["nginx"]
-
+# Don't start nginx, let fleet do it on coreos startup.
+#CMD ["nginx", "-g", "daemon off;"]
