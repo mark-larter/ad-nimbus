@@ -16,8 +16,6 @@ if File.exists?('user-data') && ARGV[0].eql?('up')
   File.open('user-data', 'w') { |file| file.write("#cloud-config\n\n#{yaml}") }
 end
 
-
-#
 # coreos-vagrant is configured through a series of configuration
 # options (global ruby variables) which are detailed below. To modify
 # these options, first copy this file to "config.rb". Then simply
@@ -52,7 +50,7 @@ $expose_docker_tcp=2375
 # Enable NFS sharing of your home directory ($HOME) to CoreOS
 # It will be mounted at the same path in the VM as on the host.
 # Example: /Users/foobar -> /Users/foobar
-$share_home=true
+$share_home=false
 
 # Customize VMs
 $vm_gui = false

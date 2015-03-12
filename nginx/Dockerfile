@@ -1,25 +1,31 @@
-# Instructions from https://registry.hub.docker.com/_/nginx/
-# From: http://nginx.com/blog/deploying-nginx-nginx-plus-docker/
+# Base OS.
+FROM centos:latest
 
-FROM nginx:latest
+# Maintainer.
+MAINTAINER Mark Larter <mark@freeheelgroup.com>
 
-MAINTAINER Andy Steere <andy.steere@troppussoftware.com>
+# Update package manager.
+RUN yum update -y
 
-COPY . /usr/share/nginx/html
+# Set repository for nginx.
+COPY ./nginx.repo /etc/yum.repos.d/nginx.repo
 
-RUN rm -v /etc/nginx/conf.d/default.conf
-RUN rm -v /etc/nginx/nginx.conf
+# Install nginx.
+RUN yum install -y nginx
 
-COPY content /usr/share/nginx/html
-ADD nginx.conf /etc/nginx/
+# Copy app source to VM.
+#COPY . /usr/share/nginx/html
+#RUN rm -v /etc/nginx/nginx.conf
+#COPY content /usr/share/nginx/html
+#COPY conf /etc/nginx
 
 # Make these folder accessible by ssh container
-VOLUME /usr/share/nginx/html
-VOLUME /etc/nginx
+#VOLUME /usr/share/nginx/html
+#VOLUME /etc/nginx
 
+# Map ports.
 EXPOSE 80
 EXPOSE 443
 
-# Don't start nginx, let fleetctl do it on coreos startup
+# Don't start nginx, let fleet do it on coreos startup.
 #CMD ["nginx", "-g", "daemon off;"]
-
