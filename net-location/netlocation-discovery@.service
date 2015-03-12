@@ -4,7 +4,9 @@ BindsTo=netlocation@%i.service
 After=netlocation@%i.service
 
 [Service]
+# Allow access to environment variables.
 EnvironmentFile=/etc/environment
+
 ExecStart=/bin/bash -c '\
   while true; do \
     curl -f ${COREOS_PUBLIC_IPV4}:49160; \
