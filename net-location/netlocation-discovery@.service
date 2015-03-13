@@ -1,5 +1,5 @@
 [Unit]
-Description=Discovery sidekick for netLocation
+Description=Discovery sidekick for netLocation.%i
 BindsTo=netlocation@%i.service
 After=netlocation@%i.service
 
