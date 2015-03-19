@@ -1,5 +1,5 @@
 # Base OS.
-FROM centos:latest
+FROM centos:centos7
 
 # Maintainer.
 MAINTAINER Mark Larter <mark@freeheelgroup.com>
