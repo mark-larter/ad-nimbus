@@ -18,9 +18,9 @@ TimeoutStartSec=0
 #ExecStartPre=-/usr/bin/docker rm %p.%i
 ExecStartPre=/usr/bin/docker pull marklarter/nginx
 
-ExecStart=/usr/bin/docker run --rm --name nginx -p 80:80 -e HOST_IP=${COREOS_PUBLIC_IPV4} marklarter/nginx
+ExecStart=/usr/bin/docker run --rm --name %p.%i -p 80:80 -e HOST_IP=${COREOS_PUBLIC_IPV4} marklarter/nginx
 
-ExecStop=-/usr/bin/docker kill nginx
+ExecStop=/usr/bin/docker kill %p.%i
 
 [X-Fleet]
 Conflicts=nginx@*.service
