@@ -28,4 +28,4 @@ EXPOSE 80
 EXPOSE 443
 
 # Don't start nginx, let fleet do it on coreos startup.
-#CMD ["nginx", "-g", "daemon off;"]
+CMD ["nginx", "-g", "daemon off;"]
