@@ -1,5 +1,5 @@
 # -*- mode: ruby -*-
-# # vi: set ft=ruby :
+#vi: set ft=ruby :
 
 require 'fileutils'
 
@@ -133,7 +133,7 @@ Vagrant.configure("2") do |config|
 
       # Customize the environment.
       # TODO: ~ is a read-only file system. Figure out how to customize
-      config.vm.provision :shell, :inline => "echo . share/.andy/.profile >> ~/.bashrc", :privileged => true
+      #config.vm.provision :shell, :inline => "echo . share/.andy/.profile >> ~/.bashrc", :privileged => true
 
       if File.exist?(CLOUD_CONFIG_PATH)
         config.vm.provision :file, :source => "#{CLOUD_CONFIG_PATH}", :destination => "/tmp/vagrantfile-user-data"

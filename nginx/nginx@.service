@@ -1,5 +1,5 @@
 [Unit]
-Description=nginx load balancer %m %H:%i
+Description=load balancer %p.%i on host %H in container %m
 After=docker.service
 Requires=docker.service
 
@@ -14,13 +14,13 @@ EnvironmentFile=/etc/environment
 # Pulling the container the first time can take more than the default 90 secs. Set to 0 for no timeout.
 TimeoutStartSec=0
 
-ExecStartPre=-/usr/bin/docker kill %p
-ExecStartPre=-/usr/bin/docker rm %p
+#ExecStartPre=-/usr/bin/docker kill %p.%i
+#ExecStartPre=-/usr/bin/docker rm %p.%i
 ExecStartPre=/usr/bin/docker pull marklarter/nginx
 
-ExecStart=/usr/bin/docker run --rm --name %p.%i -p ${COREOS_PUBLIC_IPV4}:49160:80 marklarter/nginx %p
+ExecStart=/usr/bin/docker run --rm --name nginx -p 80:80 -e HOST_IP=${COREOS_PUBLIC_IPV4} marklarter/nginx
 
-ExecStop=/usr/bin/docker stop %p
+ExecStop=-/usr/bin/docker kill nginx
 
 [X-Fleet]
 Conflicts=nginx@*.service
