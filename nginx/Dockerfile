@@ -21,7 +21,8 @@ RUN mv confd /usr/local/bin/confd
 RUN chmod +x /usr/local/bin/confd
 
 # Create directories.
-RUN mkdir -p /etc/confd/conf.d /etc/confd/templates
+RUN mkdir -p /etc/confd/{conf.d,templates}
+RUN mkdir -p /etc/nginx/{sites-available,sites-enabled}
 
 # Add confd files.
 ADD ./nginx.conf.toml /etc/confd/conf.d/nginx.conf.toml
