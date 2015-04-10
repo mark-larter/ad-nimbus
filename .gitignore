@@ -1,4 +1,9 @@
-*.mmdb
+# Vagrant files and folders.
 .vagrant/
-.*.swp
+.vagrant.d/
 
+# MaxMind data files.
+*.mmdb
+
+# Temp files and folders.
+.*.swp
