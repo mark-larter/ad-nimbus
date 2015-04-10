@@ -1,0 +1,27 @@
+DOCKER_REGISTRY=marklarter
+
+# etcd
+etcdPort=4001
+
+# confd 
+confdService=confd
+confdDockerTag=confd
+confdGuestOSPort=49180
+confdContainerPort=8090
+
+# netLocation
+netLocationService=netlocation
+netLocationDockerTag=netlocation
+netLocationKey=/troppus/netlocation
+netLocationGuestOSPort=49170
+netLocationContainerPort=8080
+minNetLocationServices=1
+maxNetLocationServices=4
+
+# nginx
+nginxService=nginx
+nginxDockerTag=nginx
+nginxGuestOSPort=49160
+nginxContainerPort=80
+nginxIpAddress=172.17.8.101
+

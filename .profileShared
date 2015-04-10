@@ -1,0 +1,31 @@
+#!/bin/bash
+
+# For foolish consistency use lowercase for function names
+function checknetlocation() {
+    # Output the timestamp for comparison with other logs
+    date
+
+    # Use a known IP address. If we run curl on this box to nginx on this box we don't have an external IP address
+    # TODO: Do we add the headers to the nodejs code or remove them here?
+    #headers=-H 'Symbi-Authentication: dummy' -H 'Content-Type: application/json' -H 'Accept: application/json' 
+
+    echo curl -X GET $headers "http://$nginxIpAddress:$nginxHostPort?ipAddress=198.243.23.131"
+    curl -X GET $headers "http://$nginxIpAddress:$nginxHostPort?ipAddress=198.243.23.131"
+}
+
+function source-environment() {
+    # Make the fleetctl service variables available to shell scripts
+    set -a
+
+    # TODO: does this break anything if we have these variables defined
+    #. /etc/environment
+    . environment
+
+    set +a
+}
+
+source-environment
+
+# Common less options
+export LESS="-q -i-i -e -F -X -R"
+

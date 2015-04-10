@@ -1,0 +1,187 @@
+# CoreOS .profile
+# Currently, this file is sourced by monitor.sh. When run as part of a service things like '~' are not defined. Always use the full path.
+
+# Aliases go first so they can be used by the functions
+alias d='docker'
+alias dps='docker ps -a'
+alias dpsa='docker ps -a'
+alias di='docker images'
+
+alias f='fleetctl --strict-host-key-checking=false'
+alias flm='fleetctl list-machines -l'
+alias flu='fleetctl list-units'
+alias fluf='fleetctl list-unit-files'
+alias ftunnel='fleetctl --tunnel 10.10.10.10'
+
+if test -x "/home/core/share/bin/jq"
+then
+    alias jq='/home/core/share/bin/jq .'
+fi
+
+alias ssh='ssh -oStrictHostKeyChecking=no'
+
+# Foolish consistency sake, functions are lower case
+function fstartnetlocation() {
+    numNetLocationInstances=1
+    fstartservice netlocation $numNetLocationInstances
+}
+
+function etctree() { 
+    # TODO: get the key from environment, shouldn't be hardcoded
+    for key in `etcdctl ls -recursive ${netLocationKey}`
+    do
+        echo -n $key=
+        etcdctl get $key
+    done
+}
+
+function fjournal() {
+    f journal $*
+}
+
+function fstartnginx() {
+    fstartservice nginx 1
+}
+
+function fstartconfd() {
+    fstartservice confd 1
+}
+
+function fstartmon() {
+    fstartservice monitor 1
+}
+
+function fstartservice() {
+    service=$1
+    numServers=$2
+
+    cd /home/core/share/$service
+
+    echo Be patient, this can take awhile before you get the first service \"$service\" output for a total of $numServers 'service(s)'
+
+    case $numServers in
+    0)
+	fleetctl start ${service}.service
+	;;
+
+    1)
+	fleetctl start ${service}@1.service
+	;;
+    *)
+        serviceRange='netlocation@{1..'$numServers'}.service'
+        `eval fleetctl start $serviceRange`
+	;;
+    esac
+
+    cd - > /dev/null
+
+}
+
+function fstartall() {
+    drmf
+
+#    fstartconfd
+    fstartnetlocation
+    sleep 5
+
+    # TOOD: nginx will fail if the nginx.conf isn't there. Does it ever recover if confd creates it later?
+    fstartnginx
+    sleep 3
+#    fstartmon
+    fluf
+
+    flu
+}
+
+function fstatusall() {
+    for service in `fluf -fields=unit | grep -v UNIT`; 
+    do 
+        echo $service 
+        f status $service 
+        read a 
+        if test "$a" = "q"
+        then
+            return
+        fi
+        echo; 
+        echo '==============' 
+    done
+}
+
+function fstatusnetlocationservices() {
+    while true 
+    do 
+        echo '============================='; 
+        for service in `fluf | grep 'launched.*launched' | grep netlocation | awk '{print $1}' `
+        do 
+            echo $service
+            f journal -lines=5 $service
+            echo
+            echo
+            read a
+        done
+    done
+}
+
+function fstatus() {
+    f status $1
+}
+
+function fdestroy() {
+    if test "$1" = ""
+    then
+        svcs=$(fleetctl list-unit-files | awk '{print $1}')
+    else
+        svcs=$1
+    fi
+
+    for i in $svcs
+    do
+        fleetctl destroy $i
+    done
+    fleetctl list-unit-files
+}
+
+function drmf() {
+    ipRoot=172.17.8
+
+    # Remove the raptor docker containers from each coreos. On clean shutdown or first time startup
+    # there are no docker containers to remove
+    for i in {1..5}
+    do 
+        ipAddr=${ipRoot}.10$i
+        dImages=`ssh -oStrictHostKeyChecking=no $ipAddr docker ps -a 2>&1 | \
+            grep -v -e 'list of known hosts' -e NAME | \
+            awk '{print $NF}'`
+
+        if test ! "$dImages" == ""
+        then
+            echo Removing docker images $dImages on $ipAddr
+            ssh -oStrictHostKeyChecking=no $ipAddr docker rm -f $dImages 
+        fi
+    done
+}
+
+if test -d /home/core/share 
+then
+    cd /home/core/share 
+
+    . .profileShared
+fi
+
+ssh-add -L | grep .vagrant.d/insecure_private_key 2>&1 > /dev/null
+if test ! $? == 0
+then
+    ssh-add .vagrant.d/insecure_private_key
+fi
+
+# Setup fleetctl status
+if test "$SSH_AUTH_SOCK" == ""
+then
+    eval $(ssh-agent)
+fi
+
+export VIMINIT='set ic number tabstop=4 shiftwidth=4 expandtab noai nocin nosi inde=<CR> fileformat=unix'
+
+export numInstances=`grep '$num_instances=' config.rb | sed 's/.*=//'`
+
