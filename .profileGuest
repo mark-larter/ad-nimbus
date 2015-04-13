@@ -27,7 +27,7 @@ function fstartnetlocation() {
 }
 
 function etctree() { 
-    # TODO: get the key from environment, shouldn't be hardcoded
+    # Get the netLocation root key from environment.
     for key in `etcdctl ls -recursive ${netLocationKey}`
     do
         echo -n $key=

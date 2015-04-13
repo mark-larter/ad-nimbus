@@ -12,7 +12,7 @@ confdContainerPort=8090
 # netLocation
 netLocationService=netlocation
 netLocationDockerTag=netlocation
-netLocationKey=/troppus/netlocation
+netLocationKey=/troppus/netLocation
 netLocationGuestOSPort=49170
 netLocationContainerPort=8080
 minNetLocationServices=1
