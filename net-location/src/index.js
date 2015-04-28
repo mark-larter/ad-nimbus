@@ -15,12 +15,18 @@ var app = express();
 
 // Define routes.
 app.get('/', function(request, response) {
-    // Get IP address for lookup. First check query params, use request IP if
-    // query param not specified.
+    // Get IP address for lookup. First check query params. If
+    // query param not specified, look at X-Forwarded-For header
+    // or connection remote address.
     var ipAddress = request.query.ipAddress;
-    console.log('ipAddress: ' + ipAddress);
-    if (!ipAddress) ipAddress = request.ip;
-    console.log('ipAddress: ' + ipAddress);
+    if (ipAddress) {
+        console.log('Parameter ipAddress: ' + ipAddress);
+    }
+    else {
+        ipAddress = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
+        console.log('Requestor ipAddress: ' + ipAddress);
+    }
+    
         
     // Lookup geo-location for specified IP.
     var geoData = { "ipAddress" : ipAddress };
