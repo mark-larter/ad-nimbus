@@ -6,7 +6,7 @@
     "author": "Mark Larter <mark@freeheelgroup.com>",
     "license": "MIT",
     "dependencies": {
-        "express": "3.2.4",
+        "express": "4.12.3",
         "maxmind-db-reader": "0.2.0"
     }
 }
