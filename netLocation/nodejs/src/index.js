@@ -26,8 +26,7 @@ app.get('/', function(request, response) {
         ipAddress = request.headers['x-forwarded-for'] || request.connection.remoteAddress;
         console.log('Requestor ipAddress: ' + ipAddress);
     }
-    
-        
+         
     // Lookup geo-location for specified IP.
     var geoData = { "ipAddress" : ipAddress };
     var countryData = null;

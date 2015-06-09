@@ -31,5 +31,5 @@ EXPOSE 8080
 ENTRYPOINT ["usr/bin/node"]
 
 # Provide default run command and/or parameters.
-#CMD ["/src/index.js"]
+CMD ["/src/index.js"]
 
