@@ -4,9 +4,5 @@ FROM golang:1.4.2
 # Maintainer.
 MAINTAINER Mark Larter <mark@freeheelgroup.com>
 
-# Set environment.
-ENV GOBIN $GOPATH/bin
-
-
 # Default CMD
 CMD ["/bin/bash"]

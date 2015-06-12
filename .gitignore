@@ -10,3 +10,8 @@
 
 # Build outputs.
 pkg/
+bin/
+
+# External source.
+src/golang.org/
+src/github.com/oschwald/

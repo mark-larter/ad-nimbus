@@ -1,0 +1,1 @@
+docker run -i --name go-build -v `pwd`:/opt/share -t marklarter/netlocation-golang
