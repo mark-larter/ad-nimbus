@@ -31,10 +31,15 @@ func main() {
 	}
 	defer dbIsp.Close()
 
+	// Set handlers.
+	http.HandleFunc("/", handler)
+
 	// Start http server.
 	fmt.Println("Starting http server")
-	http.HandleFunc("/", handler)
-	http.ListenAndServe(":8080", nil)
+	err = http.ListenAndServe(":8080", nil)
+	if err != nil {
+ 		log.Panic(err)
+	}
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
