@@ -34,7 +34,7 @@ func main() {
 	// Set handlers.
 	http.HandleFunc("/", handler)
 
-	// Start http server.
+	// Start http server. TODO: Read the port from environment.
 	fmt.Println("Starting http server")
 	err = http.ListenAndServe(":8080", nil)
 	if err != nil {
@@ -54,10 +54,10 @@ func handler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		} else {
-			fmt.Println("IP address from request (%s)", ipAddress)
+			fmt.Println("IP address from request:", ipAddress)
 		}	
 	} else {
-		fmt.Println("IP address parameter from route (%s)", ipAddress)
+		fmt.Println("IP address parameter from route:", ipAddress)
 	}
 
  	ip := net.ParseIP(ipAddress)
@@ -86,7 +86,8 @@ func openDb(dbPath string) (*maxminddb.Reader, error) {
 }
 
 func getInfo(ip net.IP) (*NetLocation) {
-	fmt.Println("Looking up geo-data and ISP for IP address (%s)", ip)
+	// TODO: Experiment with running getGeo and getIsp concurrently.
+	fmt.Println("Looking up geo-data and ISP for IP address:", ip)
 	netLocation := &NetLocation{
         IpAddress: ip.String()}
 
