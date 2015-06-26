@@ -44,23 +44,20 @@ func main() {
 
 func handler(w http.ResponseWriter, r *http.Request) {
 	// Get specified IP address for geo-location lookup.
+	var ip net.IP
+	var err error
 	ipAddress := r.URL.Path[1:]
-
-	// If no IP address specified, get the requestor IP address.
 	if (len(ipAddress) == 0 || len(strings.TrimSpace(ipAddress)) == 0) {
-		ipAddress, err := userip.FromRequest(r)
+		// If no IP address specified, get the requestor IP address.
+		ip, err = userip.FromRequest(r)
 		if (err != nil) {
 			log.Print(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
-		} else {
-			fmt.Println("IP address from request:", ipAddress)
 		}	
-	} else {
-		fmt.Println("IP address parameter from route:", ipAddress)
 	}
 
- 	ip := net.ParseIP(ipAddress)
+ 	ip = net.ParseIP(ipAddress)
 	if (ip == nil) {
 		err := errors.New("Invalid IP address")
 		log.Print(err)
@@ -87,7 +84,7 @@ func openDb(dbPath string) (*maxminddb.Reader, error) {
 
 func getInfo(ip net.IP) (*NetLocation) {
 	// TODO: Experiment with running getGeo and getIsp concurrently.
-	fmt.Println("Looking up geo-data and ISP for IP address:", ip)
+	//fmt.Println("Looking up geo-data and ISP for IP address:", ip)
 	netLocation := &NetLocation{
         IpAddress: ip.String()}
 
