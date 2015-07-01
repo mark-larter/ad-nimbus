@@ -2,15 +2,12 @@ package main
 
 import (
 	"encoding/json"
-	"errors"
 	"fmt"
 	"log"
 	"net"
 	"net/http"
 	"path/filepath"
 	"strings"
-
-	"golang.org/x/blog/content/context/userip"
 
 	"github.com/oschwald/maxminddb-golang"
 )
@@ -43,13 +40,13 @@ func main() {
 }
 
 func handler(w http.ResponseWriter, r *http.Request) {
-	// Get specified IP address for geo-location lookup.
+	// Get specified IP address for geo-location lookup. If no IP address
+	// specified, use the IP address of the requesting device.
 	var ip net.IP
 	var err error
 	ipAddress := r.URL.Path[1:]
-	if (len(ipAddress) == 0 || len(strings.TrimSpace(ipAddress)) == 0) {
-		// If no IP address specified, get the requestor IP address.
-		ip, err = userip.FromRequest(r)
+	if (isEmptyOrWhitespace(ipAddress)) {
+		ipAddress = getRequestorIp(r)
 		if (err != nil) {
 			log.Print(err)
 			http.Error(w, err.Error(), http.StatusBadRequest)
@@ -59,7 +56,7 @@ func handler(w http.ResponseWriter, r *http.Request) {
 
  	ip = net.ParseIP(ipAddress)
 	if (ip == nil) {
-		err := errors.New("Invalid IP address")
+		err := fmt.Errorf("Invalid IP address %s", ipAddress)
 		log.Print(err)
 		http.Error(w, err.Error(), http.StatusBadRequest)
 		return
@@ -68,6 +65,23 @@ func handler(w http.ResponseWriter, r *http.Request) {
 	netLocation := getInfo(ip)
 	outInfo, _ := json.Marshal(netLocation)
 	fmt.Fprint(w, string(outInfo))
+}
+
+func isEmptyOrWhitespace(s string) bool {
+	return (len(s) == 0 || len(strings.TrimSpace(s)) == 0)
+}
+
+func getRequestorIp(r *http.Request) string {
+	ipProxy := r.Header.Get("x-forwarded-for")
+	if (isEmptyOrWhitespace(ipProxy)) {
+		ipAddress, _, _ := net.SplitHostPort(r.RemoteAddr)
+		return ipAddress
+	}
+	ips := strings.Split(ipProxy, ", ")
+	if (len(ips) > 0) {
+		return ips[0]
+	}
+	return "Undetermined"
 }
 
 func openDb(dbPath string) (*maxminddb.Reader, error) {
@@ -92,6 +106,7 @@ func getInfo(ip net.IP) (*NetLocation) {
 	geoData, err := getGeo(ip)
 	if (err != nil) {
 		log.Print(err)
+
 	} else {
 		const language string = "en"
 		netLocation.City = geoData.City.Names[language]
