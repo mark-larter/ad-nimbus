@@ -167,8 +167,8 @@ type geoData struct {
 	} `maxminddb:"country"`
 	Location struct {
 		Latitude float64 `maxminddb:"latitude"`
-        Longitude float64 `maxminddb:"longitude"`
-        Timezone string `maxminddb:"time_zone"`
+		Longitude float64 `maxminddb:"longitude"`
+		Timezone string `maxminddb:"time_zone"`
 	} `maxminddb:"location"`
     Postal struct {
 		Code string `maxminddb:"code"`
